@@ -1,3 +1,4 @@
+import 'package:chat_app/pages/chat_page.dart';
 import 'package:chat_app/pages/home.dart';
 import 'package:chat_app/pages/onboarding.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,10 @@ class ChatApp extends StatefulWidget {
 class _ChatAppState extends State<ChatApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: Home());
+    return MaterialApp(
+      theme: ThemeData.dark().copyWith(),
+      debugShowCheckedModeBanner: false,
+      home: ChatPage(),
+    );
   }
 }

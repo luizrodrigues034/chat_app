@@ -13,7 +13,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Container(
-        margin: EdgeInsets.only(top: 40),
+        margin: EdgeInsets.only(top: 60),
         width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
