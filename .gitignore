@@ -117,3 +117,33 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
+# Firebase - arquivos de configuração (NUNCA versionar os de build)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Firebase - arquivos de cache gerados
+firebase_app_id_file.json
+
+# Arquivos de build (Flutter/Dart)
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.melos_tool/
+
+# IDEs e editores
+.idea/
+.vscode/
+*.iml
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de ambientes locais
+.env
+*.key
+*.pem
+*.jks
