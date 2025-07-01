@@ -125,25 +125,35 @@ ios/Runner/GoogleService-Info.plist
 # Firebase - arquivos de cache gerados
 firebase_app_id_file.json
 
-# Arquivos de build (Flutter/Dart)
-build/
+# Flutter/Dart
 .dart_tool/
+.packages
+build/
 .flutter-plugins
 .flutter-plugins-dependencies
-.packages
 .melos_tool/
 
-# IDEs e editores
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+
+# iOS
+ios/Flutter/Generated.xcconfig
+ios/Pods/
+ios/.symlinks/
+ios/Podfile.lock
+ios/Runner.xcworkspace/
+ios/build/
+
+# Firebase
+firebase.json
+lib/firebase_options.dart
+GoogleService-Info.plist
+
+# IDEs
 .idea/
-.vscode/
 *.iml
 
-# Arquivos do sistema
-.DS_Store
-Thumbs.db
-
-# Arquivos de ambientes locais
+# Outros
 .env
-*.key
-*.pem
-*.jks

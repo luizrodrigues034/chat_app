@@ -1,3 +1,4 @@
+import 'package:chat_app/services/auth_services.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -16,12 +17,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
         clipBehavior: Clip.none,
         children: [
           Image.asset('images/onboard.png', fit: BoxFit.cover),
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.56,
-            left: 0,
-            right: 0,
+          Align(
+            alignment: Alignment.bottomCenter,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.60,
+              height: MediaQuery.of(context).size.height * 0.40,
               decoration: BoxDecoration(
                 color: Colors.black,
                 borderRadius: BorderRadius.only(
@@ -61,10 +60,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 30),
                     child: Material(
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       elevation: 10,
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          AuthService().signInWithGoogleFirebase();
+                        },
                         child: Container(
                           height: 60,
                           width: MediaQuery.of(context).size.width,
