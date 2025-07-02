@@ -57,6 +57,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
                   SizedBox(height: 20),
+                  // ElevatedButton(
+                  //   onPressed: () async {
+                  //     setState(() {});
+                  //     await AuthService().signOut();
+                  //     setState(() {});
+                  //   },
+                  //   child: Text('Singout'),
+                  // ),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 30),
                     child: Material(
@@ -64,8 +72,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       borderRadius: BorderRadius.circular(20),
                       elevation: 10,
                       child: InkWell(
-                        onTap: () {
-                          AuthService().signInWithGoogleFirebase();
+                        onTap: () async {
+                          await AuthService().signInWithGoogleFirebase(context);
+                          setState(() {});
                         },
                         child: Container(
                           height: 60,
@@ -93,6 +102,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              // Text(
+                              //   AuthService().getCurrentUser() != null
+                              //       ? 'Logado'
+                              //       : 'Deslogado',
+                              //   textAlign: TextAlign.center,
+                              //   style: TextStyle(
+                              //     color: Colors.black,
+                              //     fontSize: 18.0,
+                              //     fontWeight: FontWeight.bold,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),

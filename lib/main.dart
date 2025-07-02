@@ -6,9 +6,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  runApp(ChatApp());
-
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const ChatApp());
 }
 
 class ChatApp extends StatefulWidget {
@@ -30,7 +30,7 @@ class _ChatAppState extends State<ChatApp> {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(),
       debugShowCheckedModeBanner: false,
-      home: OnboardingPage(),
+      home: ChatPage(),
     );
   }
 }
