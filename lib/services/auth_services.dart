@@ -1,4 +1,6 @@
+import 'package:chat_app/pages/home.dart';
 import 'package:chat_app/services/firestore_services.dart';
+import 'package:chat_app/services/shared_preferences_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -64,29 +66,45 @@ class AuthService {
       final user = userCredential.user;
 
       if (user != null) {
+        String username = user.email!.replaceAll("@gmail.com", "");
+        String firstLetter = username.substring(0, 1).toUpperCase();
         Map<String, dynamic> userInfoMap = {
           'name': user.displayName,
           'email': user.email,
           'photo': user.photoURL,
           'Id': user.uid,
+          'username': username.toUpperCase(),
+          'SearchKey': firstLetter,
         };
-        await FirestoreServices().addUser(userInfoMap, userInfoMap['id']);
+        print(userInfoMap['Id']);
+        await SharedPreferencesServices.saveUserInfo(
+          id: userInfoMap['Id'],
+          name: userInfoMap['name'],
+          email: userInfoMap['email'],
+          image: userInfoMap['photo'],
+          username: userInfoMap['username'],
+        );
+        await FirestoreServices.addUser(userInfoMap, userInfoMap['Id']);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text(
+              'Voce esta logado!',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
       }
 
       // 6. Atualiza estado local
       _currentUser = googleUser;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-            'Voce esta logado!',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
       );
       return userCredential;
     } on FirebaseAuthException catch (e) {

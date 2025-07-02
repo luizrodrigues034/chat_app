@@ -1,5 +1,7 @@
 import 'package:chat_app/services/auth_services.dart';
+import 'package:chat_app/services/shared_preferences_services.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -62,6 +64,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   //     setState(() {});
                   //     await AuthService().signOut();
                   //     setState(() {});
+
+                  //     await SharedPreferencesServices.clearUserInfo();
                   //   },
                   //   child: Text('Singout'),
                   // ),
@@ -74,7 +78,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       child: InkWell(
                         onTap: () async {
                           await AuthService().signInWithGoogleFirebase(context);
-                          setState(() {});
                         },
                         child: Container(
                           height: 60,
@@ -102,17 +105,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              // Text(
-                              //   AuthService().getCurrentUser() != null
-                              //       ? 'Logado'
-                              //       : 'Deslogado',
-                              //   textAlign: TextAlign.center,
-                              //   style: TextStyle(
-                              //     color: Colors.black,
-                              //     fontSize: 18.0,
-                              //     fontWeight: FontWeight.bold,
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),

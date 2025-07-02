@@ -30,7 +30,7 @@ class _ChatAppState extends State<ChatApp> {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(),
       debugShowCheckedModeBanner: false,
-      home: ChatPage(),
+      home: OnboardingPage(),
     );
   }
 }
