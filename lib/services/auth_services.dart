@@ -1,4 +1,5 @@
 import 'package:chat_app/pages/home.dart';
+import 'package:chat_app/pages/onboarding.dart';
 import 'package:chat_app/services/firestore_services.dart';
 import 'package:chat_app/services/shared_preferences_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -115,17 +116,29 @@ class AuthService {
     }
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context) async {
     try {
       // Desconecta da conta do Google
       await _googleSignIn.signOut();
 
       // Desconecta do Firebase
       await _firebaseAuth.signOut();
-
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => OnboardingPage()),
+      );
       print('Usuário desconectado com sucesso');
     } catch (e) {
       print('Erro ao fazer logout: $e');
     }
+  }
+
+  Future<String> getUserId(BuildContext context) async {
+    var id = await FirebaseAuth.instance.currentUser?.uid;
+    if (id == null) {
+      signOut(context);
+      return throw 'Id do cliente nao encontrado';
+    }
+    return id;
   }
 }
