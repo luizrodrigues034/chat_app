@@ -1,4 +1,5 @@
 import 'package:chat_app/services/auth_services.dart';
+import 'package:chat_app/services/firestore_services.dart';
 import 'package:chat_app/services/shared_preferences_services.dart';
 import 'package:flutter/material.dart';
 
@@ -12,10 +13,177 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late Future<Map<String, dynamic>> userInfoFuture;
 
+  late TextEditingController _searchUserController;
+  List<Map<String, dynamic>> _searchResults = [];
+
+  String _currentText = '';
+  getChatRoomIdbyUsername(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+      return '$b\_$a';
+    } else {
+      return '$a\_$b';
+    }
+  }
+
+  void _onTextChange() async {
+    setState(() {
+      _currentText = _searchUserController.text;
+    });
+
+    if (_currentText.isNotEmpty) {
+      final querySnapshot = await FirestoreServices.searchUser(_currentText);
+      setState(() {
+        _searchResults = querySnapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+      });
+    } else {
+      setState(() {
+        _searchResults = [];
+      });
+    }
+  }
+
   @override
   void initState() {
-    userInfoFuture = SharedPreferencesServices.getUserInfo();
     super.initState();
+    userInfoFuture = SharedPreferencesServices.getUserInfo();
+    _searchUserController = TextEditingController();
+    _searchUserController.addListener(_onTextChange);
+  }
+
+  @override
+  void dispose() {
+    _searchUserController.removeListener(_onTextChange);
+    _searchUserController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildSearchResults(String userMyId) {
+    return ListView.builder(
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        final user = _searchResults[index];
+
+        final currentUserInfo =
+            (userInfoFuture as Future<Map<String, dynamic>>);
+
+        return FutureBuilder<Map<String, dynamic>>(
+          future: currentUserInfo,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const SizedBox.shrink();
+
+            if (user['Id'] ==
+                snapshot.data![SharedPreferencesServices.userIdKey]) {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              children: [
+                ListTile(
+                  leading: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: ClipOval(
+                      child: SizedBox.expand(
+                        child: Image.network(
+                          user['photo'] ??
+                              'https://i.pravatar.cc/150?img=${index + 1}', // Imagem de placeholder
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Image.asset('images/boy.jpg', fit: BoxFit.cover),
+                        ),
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    user['name'] ?? 'Usuário desconhecido',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Text(
+                    user['email'] ?? 'Nenhum email',
+                    style: TextStyle(color: Colors.black54, fontSize: 16.0),
+                  ),
+                  onTap: () {
+                    print('Iniciando chat com ${user['username']}');
+                    getChatRoomIdbyUsername(user['Id'], userMyId);
+                  },
+                ),
+                Material(
+                  elevation: 2,
+                  child: SizedBox(
+                    height: 1,
+                    width: MediaQuery.of(context).size.width,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDefaultChatList() {
+    return ListView(
+      children: [
+        Column(
+          children: [
+            ListTile(
+              leading: SizedBox(
+                width: 50,
+                height: 50,
+                child: ClipOval(
+                  child: SizedBox.expand(
+                    child: Image.asset('images/boy.jpg', fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+              title: Text(
+                'My brother',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
+                'Hello, how are you doing?',
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '12:55',
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 3),
+            Container(
+              color: const Color.fromARGB(114, 0, 0, 0),
+              height: 1,
+              width: MediaQuery.of(context).size.width * 0.85,
+            ),
+            SizedBox(height: 10),
+          ],
+        ),
+      ],
+    );
   }
 
   @override
@@ -55,29 +223,33 @@ class _HomeState extends State<Home> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
-                        userInfo[SharedPreferencesServices.userNameKey].split(
-                              " ",
-                            )[0] ??
-                            'have a nice day',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          userInfo[SharedPreferencesServices.userNameKey]
+                                  ?.split(" ")[0] ??
+                              'have a nice day',
+                          textAlign: TextAlign.start,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26.0,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       Spacer(),
                       Container(
-                        padding: EdgeInsets.all(5),
+                        padding: EdgeInsets.all(3),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          color: Colors.grey[800],
                         ),
-                        child: Icon(
-                          Icons.person,
-                          size: 40,
-                          color: Colors.black,
+                        child: CircleAvatar(
+                          radius: 25,
+                          backgroundImage: NetworkImage(
+                            userInfo[SharedPreferencesServices.userImageKey] ??
+                                'https://lh3.googleusercontent.com/a/ACg8ocJl2KUI34tE8t2soiQC_I0p4IcY13hNxGhyHIVWuArH-d_ykg=s96-c',
+                          ),
                         ),
                       ),
                     ],
@@ -104,7 +276,10 @@ class _HomeState extends State<Home> {
                   SizedBox(height: 20),
                   Expanded(
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 20,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -114,13 +289,14 @@ class _HomeState extends State<Home> {
                       ),
                       child: Column(
                         children: [
-                          SizedBox(height: 30),
                           Container(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
                             decoration: BoxDecoration(
                               color: Color(0xFFececf8),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: TextField(
+                              controller: _searchUserController,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.search),
                                 border: InputBorder.none,
@@ -128,66 +304,15 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ),
+                          SizedBox(height: 20),
+                          // ** IMPLEMENTAÇÃO PRINCIPAL AQUI **
                           Expanded(
-                            child: ListView(
-                              children: [
-                                Column(
-                                  children: [
-                                    ListTile(
-                                      leading: SizedBox(
-                                        width: 50,
-                                        height: 50,
-                                        child: ClipOval(
-                                          child: SizedBox.expand(
-                                            child: Image.asset(
-                                              'images/boy.jpg',
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      title: Text(
-                                        'My brother',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        'Hello, how are you doing?',
-                                        style: TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      trailing: Column(
-                                        children: [
-                                          Text(
-                                            '12:55',
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Material(
-                                      elevation: 2,
-                                      child: SizedBox(
-                                        height: 1,
-                                        width: MediaQuery.of(
-                                          context,
-                                        ).size.width,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                            child: _currentText.isEmpty
+                                ? _buildDefaultChatList()
+                                : _buildSearchResults(
+                                    userInfo[SharedPreferencesServices
+                                        .userIdKey],
+                                  ),
                           ),
                         ],
                       ),
