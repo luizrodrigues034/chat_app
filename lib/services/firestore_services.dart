@@ -46,13 +46,13 @@ class FirestoreServices {
   /// - `DocumentSnapshot` se `mode` for 'get' e o chat room existir.
   /// - `null` se `mode` for 'get' e o chat room NÃO existir.
   /// - `null` se `mode` não for nem 'check' nem 'get' (ou outro cenário não tratado).
-  Future<dynamic> getChatRoomId(String chatRoomId, String mode) async {
+  static Future<dynamic> getChatRoomId(String chatRoomId, String mode) async {
     try {
-      DocumentSnapshot documentSnapshot =
-          await _firestore // Use a instância _firestore
-              .collection('Chatrooms')
-              .doc(chatRoomId)
-              .get();
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore
+          .instance // Use a instância _firestore
+          .collection('Chatrooms')
+          .doc(chatRoomId)
+          .get();
 
       if (mode == 'check') {
         return documentSnapshot.exists; // Retorna true ou false diretamente
@@ -86,5 +86,18 @@ class FirestoreServices {
         .limit(10) // Limita a 10 resultados
         .get();
     return querySnapshot;
+  }
+
+  static createChatRoom(
+    String chatRoomId,
+    Map<String, dynamic> chatRoomInfoMap,
+  ) async {
+    final _snapshot = await getChatRoomId(chatRoomId, 'check');
+    if (_snapshot == false) {
+      return FirebaseFirestore.instance
+          .collection('Chatrooms')
+          .doc(chatRoomId)
+          .set(chatRoomInfoMap);
+    }
   }
 }

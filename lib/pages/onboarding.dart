@@ -1,3 +1,4 @@
+import 'package:chat_app/pages/login_page.dart';
 import 'package:chat_app/services/auth_services.dart';
 import 'package:chat_app/services/shared_preferences_services.dart';
 import 'package:flutter/material.dart';
@@ -59,16 +60,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  // ElevatedButton(
-                  //   onPressed: () async {
-                  //     setState(() {});
-                  //     await AuthService().signOut();
-                  //     setState(() {});
 
-                  //     await SharedPreferencesServices.clearUserInfo();
-                  //   },
-                  //   child: Text('Singout'),
-                  // ),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 30),
                     child: Material(
@@ -98,6 +90,47 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               SizedBox(width: 20),
                               Text(
                                 'Sign in with Google',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 30),
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      elevation: 10,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 60,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: const Color.fromARGB(255, 250, 250, 250),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Sign in with Email',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.black,

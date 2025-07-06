@@ -1,6 +1,7 @@
 import 'package:chat_app/services/auth_services.dart';
 import 'package:chat_app/services/firestore_services.dart';
 import 'package:chat_app/services/shared_preferences_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -59,76 +60,80 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-  Widget _buildSearchResults(String userMyId) {
+  Widget _buildSearchResults(Map<String, dynamic> userInfo) {
     return ListView.builder(
       itemCount: _searchResults.length,
       itemBuilder: (context, index) {
         final user = _searchResults[index];
+        if (user['Id'] == userInfo[SharedPreferencesServices.userIdKey]) {
+          return const SizedBox.shrink();
+        }
 
-        final currentUserInfo =
-            (userInfoFuture as Future<Map<String, dynamic>>);
-
-        return FutureBuilder<Map<String, dynamic>>(
-          future: currentUserInfo,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const SizedBox.shrink();
-
-            if (user['Id'] ==
-                snapshot.data![SharedPreferencesServices.userIdKey]) {
-              return const SizedBox.shrink();
-            }
-
-            return Column(
-              children: [
-                ListTile(
-                  leading: SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: ClipOval(
-                      child: SizedBox.expand(
-                        child: Image.network(
-                          user['photo'] ??
-                              'https://i.pravatar.cc/150?img=${index + 1}', // Imagem de placeholder
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Image.asset('images/boy.jpg', fit: BoxFit.cover),
-                        ),
-                      ),
+        return Column(
+          children: [
+            ListTile(
+              leading: SizedBox(
+                width: 50,
+                height: 50,
+                child: ClipOval(
+                  child: SizedBox.expand(
+                    child: Image.network(
+                      user['photo'] ??
+                          'https://i.pravatar.cc/150?img=${index + 1}', // Imagem de placeholder
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Image.asset('images/boy.jpg', fit: BoxFit.cover),
                     ),
                   ),
-                  title: Text(
-                    user['name'] ?? 'Usuário desconhecido',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    user['email'] ?? 'Nenhum email',
-                    style: TextStyle(color: Colors.black54, fontSize: 16.0),
-                  ),
-                  onTap: () {
-                    print('Iniciando chat com ${user['username']}');
-                    getChatRoomIdbyUsername(user['Id'], userMyId);
-                  },
                 ),
-                Material(
-                  elevation: 2,
-                  child: SizedBox(
-                    height: 1,
-                    width: MediaQuery.of(context).size.width,
-                  ),
+              ),
+              title: Text(
+                user['name'] ?? 'Usuário desconhecido',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            );
-          },
+              ),
+              subtitle: Text(
+                user['email'] ?? 'Nenhum email',
+                style: TextStyle(color: Colors.black54, fontSize: 16.0),
+              ),
+              onTap: () async {
+                print('Iniciando chat com ${user['username']}');
+                print(
+                  'Iniciando chat com ${userInfo[SharedPreferencesServices.userNameKey]}',
+                );
+                var chatRoomId = getChatRoomIdbyUsername(
+                  user['Id'],
+                  userInfo[SharedPreferencesServices.userIdKey],
+                );
+                Map<String, dynamic> chatRoomInfoMap = {
+                  'users': [
+                    user['username'],
+                    userInfo[SharedPreferencesServices.userNameKey],
+                  ],
+                };
+                await FirestoreServices.createChatRoom(
+                  chatRoomId,
+                  chatRoomInfoMap,
+                );
+              },
+            ),
+            Material(
+              elevation: 2,
+              child: SizedBox(
+                height: 1,
+                width: MediaQuery.of(context).size.width,
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  Widget _buildDefaultChatList() {
+  Widget _buildDefaultChatList(BuildContext context) {
     return ListView(
       children: [
         Column(
@@ -308,11 +313,8 @@ class _HomeState extends State<Home> {
                           // ** IMPLEMENTAÇÃO PRINCIPAL AQUI **
                           Expanded(
                             child: _currentText.isEmpty
-                                ? _buildDefaultChatList()
-                                : _buildSearchResults(
-                                    userInfo[SharedPreferencesServices
-                                        .userIdKey],
-                                  ),
+                                ? _buildDefaultChatList(context)
+                                : _buildSearchResults(userInfo),
                           ),
                         ],
                       ),

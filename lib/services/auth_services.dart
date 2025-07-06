@@ -141,4 +141,45 @@ class AuthService {
     }
     return id;
   }
+
+  signUpEmailPassword(
+    String name,
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
+    try {
+      UserCredential userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      User? user = userCredential.user;
+
+      Map<String, dynamic> userInfoMap = {
+        'Id': user?.uid,
+        'SearchKey': email[0],
+        'name': name,
+        'email': email,
+        'photo':
+            'https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg',
+        'username': email.split('@')[0],
+      };
+      await SharedPreferencesServices.saveUserInfo(
+        id: userInfoMap['Id'],
+        name: userInfoMap['name'],
+        email: userInfoMap['email'],
+        image: userInfoMap['photo'],
+        username: userInfoMap['username'],
+      );
+      FirestoreServices.addUser(userInfoMap, userInfoMap['Id']);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    } on Exception catch (e) {
+      print(e);
+    }
+  }
+
+  signInEmailPassWord(String email, String password) {
+    _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+  }
 }
