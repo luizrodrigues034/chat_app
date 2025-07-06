@@ -15,6 +15,16 @@ class FirestoreServices {
     print('Usuário adicionado com sucesso.');
   }
 
+  static Future getUserInfo(String id) async {
+    DocumentSnapshot _snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .get();
+    if (_snapshot.exists) {
+      return _snapshot;
+    }
+  }
+
   static addMessage(
     String chatRoomId,
     String messageId,

@@ -16,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   void _login() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-    AuthService().signInEmailPassWord(email, password);
+    AuthService().signInEmailPassWord(email, password, context);
   }
 
   @override

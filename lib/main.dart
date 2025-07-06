@@ -1,6 +1,7 @@
 import 'package:chat_app/pages/chat_page.dart';
 import 'package:chat_app/pages/home.dart';
 import 'package:chat_app/pages/onboarding.dart';
+import 'package:chat_app/services/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -30,7 +31,9 @@ class _ChatAppState extends State<ChatApp> {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(),
       debugShowCheckedModeBanner: false,
-      home: OnboardingPage(), //ChatPage(name: '', userName: '', profiUrl: ''),
+      home: AuthService().getCurrentUser() == null
+          ? OnboardingPage()
+          : Home(), //ChatPage(name: '', userName: '', profiUrl: ''),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:chat_app/pages/chat_page.dart';
 import 'package:chat_app/services/auth_services.dart';
 import 'package:chat_app/services/firestore_services.dart';
 import 'package:chat_app/services/shared_preferences_services.dart';
@@ -102,21 +103,34 @@ class _HomeState extends State<Home> {
               onTap: () async {
                 print('Iniciando chat com ${user['username']}');
                 print(
-                  'Iniciando chat com ${userInfo[SharedPreferencesServices.userNameKey]}',
+                  'Iniciando chat com ${userInfo[SharedPreferencesServices.userUserNameKey]}',
                 );
+
                 var chatRoomId = getChatRoomIdbyUsername(
-                  user['Id'],
-                  userInfo[SharedPreferencesServices.userIdKey],
+                  user['username'],
+                  userInfo[SharedPreferencesServices.userUserNameKey],
                 );
+
                 Map<String, dynamic> chatRoomInfoMap = {
                   'users': [
                     user['username'],
-                    userInfo[SharedPreferencesServices.userNameKey],
+                    userInfo[SharedPreferencesServices.userUserNameKey],
                   ],
                 };
+
                 await FirestoreServices.createChatRoom(
                   chatRoomId,
                   chatRoomInfoMap,
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatPage(
+                      name: chatRoomInfoMap['users'][0],
+                      userName: chatRoomInfoMap['users'][1],
+                      profiUrl: user['photo'],
+                    ),
+                  ),
                 );
               },
             ),

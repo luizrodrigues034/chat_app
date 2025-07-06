@@ -9,7 +9,9 @@ class ChatPage extends StatefulWidget {
   final String name, userName, profiUrl;
   const ChatPage({
     super.key,
+    //name target
     required this.name,
+    //self name
     required this.userName,
     required this.profiUrl,
   });
@@ -44,12 +46,13 @@ class _ChatPageState extends State<ChatPage> {
 
       Map<String, dynamic> messageInfoMap = {
         'message': message,
-        'sendBy': userInfo[SharedPreferencesServices.userNameKey],
+        'sendBy': userInfo[SharedPreferencesServices.userUserNameKey],
         'ts': formateddDate,
         'time': FieldValue.serverTimestamp(),
         'imgUrl': userInfo[SharedPreferencesServices.userImageKey],
       };
       messageId = randomAlphaNumeric(10);
+      await FirestoreServices.addMessage(chatRoomId, messageId, messageInfoMap);
       await FirestoreServices.updateLastMessage(chatRoomId, messageInfoMap);
       if (statusClickSend) {
         message = '';
@@ -82,8 +85,8 @@ class _ChatPageState extends State<ChatPage> {
     userInfoFuture.then((userInfo) {
       setInfos(
         userInfoReceive: userInfo,
-        a: widget.userName,
-        b: userInfo[SharedPreferencesServices.userNameKey] as String,
+        a: widget.name,
+        b: userInfo[SharedPreferencesServices.userUserNameKey] as String,
       );
     });
   }
@@ -251,16 +254,21 @@ class _ChatPageState extends State<ChatPage> {
                               ),
                             ),
                             SizedBox(width: 10),
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(60),
-                                color: Colors.black,
-                              ),
-                              child: Icon(
-                                Icons.send,
-                                color: Colors.white,
-                                size: 30,
+                            GestureDetector(
+                              onTap: () {
+                                addMessage(true);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(60),
+                                  color: Colors.black,
+                                ),
+                                child: Icon(
+                                  Icons.send,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
                               ),
                             ),
                             SizedBox(width: 10),

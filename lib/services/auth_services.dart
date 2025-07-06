@@ -179,7 +179,46 @@ class AuthService {
     }
   }
 
-  signInEmailPassWord(String email, String password) {
-    _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+  Future<void> signInEmailPassWord(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
+    try {
+      UserCredential userCredential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      User? user = userCredential.user;
+
+      if (user == null) {
+        throw Exception('Usuário não encontrado após login');
+      }
+
+      final infoUser = await FirestoreServices.getUserInfo(user.uid);
+
+      if (infoUser == null || infoUser.data() == null) {
+        throw Exception('Dados do usuário não encontrados no Firestore');
+      }
+
+      final data = infoUser.data() as Map<String, dynamic>;
+
+      await SharedPreferencesServices.saveUserInfo(
+        id: data['Id'],
+        name: data['name'],
+        email: data['email'],
+        image: data['photo'],
+        username: data['username'],
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    } catch (e) {
+      print('Erro ao fazer login: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao fazer login. Verifique os dados.')),
+      );
+    }
   }
 }
