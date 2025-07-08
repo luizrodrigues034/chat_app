@@ -110,4 +110,13 @@ class FirestoreServices {
           .set(chatRoomInfoMap);
     }
   }
+
+  static Future<Stream<QuerySnapshot>> getChatRoomMessages(chatroomId) async {
+    return FirebaseFirestore.instance
+        .collection('Chatrooms')
+        .doc(chatroomId)
+        .collection('chats')
+        .orderBy('time', descending: true)
+        .snapshots();
+  }
 }

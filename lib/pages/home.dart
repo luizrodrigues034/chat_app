@@ -126,8 +126,8 @@ class _HomeState extends State<Home> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatPage(
-                      name: chatRoomInfoMap['users'][0],
-                      userName: chatRoomInfoMap['users'][1],
+                      otherUserName: chatRoomInfoMap['users'][0],
+                      myUserName: chatRoomInfoMap['users'][1],
                       profiUrl: user['photo'],
                     ),
                   ),
